@@ -1,21 +1,25 @@
 let winSquare = []
 let arrOfSquare = []
-
+let arrOfCoordinates = []
 let indexWinSquare = 0
 const colors = [
-    'green', 'blue', 'red', 'yellow', 'orange'
+    'green', 'blue', 'red', 'yellow', 'orange', 'BlueViolet', 'Cyan', 'DarkBlue'
 ]
 
 let oneSide = 3
+let score = 0
 const numberOfSquares = 12
 const width = 25
 const numberOfTries = 4
 let attemptsLeft = 0
+const attemptsToWin = 2
+let attemptsLeftToWin = 1
 let maxSquares = Math.pow(oneSide, 2)
 
 function init() {
     winSquare = []
     arrOfSquare = []
+    arrOfCoordinates = []
     for (let i = 0; i < maxSquares; i++) {
         winSquare.push(getRandomElement(colors))
     }
@@ -33,8 +37,14 @@ function init() {
     const top_row = document.querySelector('.top_row')
     const main_square = top_row.querySelector('.main_square')
     main_square.style.cursor = 'auto'
-    main_square.style.flex = `0 0 ${oneSide * width}px`
     main_square.style['grid-template-columns'] = `repeat(${oneSide}, 1fr)`
+    main_square.style.height = `${oneSide * width}px`
+    main_square.style.width = `${oneSide * width}px`
+    main_square.style.position = 'relative'
+
+    const field_for_answer = document.querySelector('.field_for_answer')
+    field_for_answer.style.height = `${oneSide * width + 15}px`
+    field_for_answer.style.width = `${oneSide * width + 15}px`
 
     const listOfSquare = main_square.querySelectorAll('.mini_square');
     for (let i = 0; i < listOfSquare.length; i++) {
@@ -51,7 +61,7 @@ function init() {
     drawNumbers()
     drawProgressBar()
     drawAllSquare()
-    mouse()
+    // mouse()
 }
 
 function getRandomElement(arr) {
@@ -60,7 +70,7 @@ function getRandomElement(arr) {
 
 function drawNumbers() {
     const left_number = document.querySelector('.left_number h1')
-    left_number.innerHTML = (oneSide - 3).toString();
+    left_number.innerHTML = score.toString();
 
     const right_number = document.querySelector('.right_number h1')
     right_number.innerHTML = attemptsLeft.toString();
@@ -80,13 +90,36 @@ function drawAllSquare() {
     for (let i = 0; i < arrayOfSquare.length; i++) {
         arrayOfSquare[i].remove()
     }
+    const offsetTop = bottom_row.offsetTop + (oneSide * width);
+    const offsetLeft = bottom_row.offsetLeft + (oneSide * width);
+    const offsetHeight = bottom_row.offsetHeight - (oneSide * width);
+    const offsetWidth = bottom_row.offsetWidth - (oneSide * width);
 
     for (let i = 0; i < arrOfSquare.length; i++) {
         const mainSquare = document.createElement('div')
         mainSquare.className = 'main_square'
         mainSquare.index = i
-        mainSquare.style.flex = `0 0 ${oneSide * width}px`
         mainSquare.style['grid-template-columns'] = `repeat(${oneSide}, 1fr)`
+        const randomAngle = 90 * Math.floor(Math.random() * 4)
+        mainSquare.style.transform = `rotate(${randomAngle}deg)`
+        mainSquare.angle = randomAngle;
+        mainSquare.style.height = `${oneSide * width}px`
+        mainSquare.style.width = `${oneSide * width}px`
+
+        let x = randomIntFromInterval(offsetTop, offsetHeight)
+        let y = randomIntFromInterval(offsetLeft, offsetWidth)
+
+        while (arrOfCoordinates.filter(value => {
+            return Math.abs(value.x - x) < ((oneSide * width) + 15) && Math.abs(value.y - y) < ((oneSide * width) + 15)
+        }).length > 0) {
+            x = randomIntFromInterval(offsetTop, offsetHeight)
+            y = randomIntFromInterval(offsetLeft, offsetWidth)
+        }
+
+        arrOfCoordinates.push({x: x, y: y})
+        mainSquare.style.top = x + 'px'
+        mainSquare.style.left = y + 'px'
+
         const square = arrOfSquare[i]
         for (let j = 0; j < square.length; j++) {
             const miniSquare = document.createElement('div')
@@ -107,7 +140,7 @@ function mouse() {
             if (e.target.parentElement.index === indexWinSquare) {
                 winAnimation()
             } else {
-                lose()
+                // lose()
             }
         }
     }
@@ -118,7 +151,11 @@ function winAnimation() {
     bottom_row.onmouseup = null;
     const arrayOfSquare = bottom_row.querySelectorAll('.main_square')
     arrayOfSquare[arrayOfSquare.length - 1].addEventListener('animationend', () => {
-        increase()
+        score++;
+        if (attemptsLeftToWin === attemptsToWin) {
+            increase()
+        }
+        attemptsLeftToWin++;
         init()
     });
     for (let i = 0; i < arrayOfSquare.length; i++) {
@@ -134,6 +171,7 @@ function lose() {
         oneSide = 3
         maxSquares = Math.pow(oneSide, 2)
         attemptsLeft = 0
+        score = 0
     } else {
         attemptsLeft++;
     }
@@ -145,4 +183,46 @@ function increase() {
     maxSquares = Math.pow(oneSide, 2)
 }
 
+function randomIntFromInterval(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
 init()
+
+document.onmousedown = function (e) {
+    const targetElement = e.target.parentElement
+    if (targetElement.index === undefined) return;
+
+    document.onkeyup = function (e1) {
+        if (e1.key === 'ArrowLeft') {
+            targetElement.angle -= 90
+            targetElement.style.transform = `rotate(${targetElement.angle}deg)`
+        }
+
+        if (e1.key === 'ArrowRight') {
+            targetElement.angle += 90;
+            targetElement.style.transform = `rotate(${targetElement.angle}deg)`
+        }
+    }
+    document.onmousemove = function (e2) {
+        targetElement.style.left = e2.pageX - parseInt(targetElement.style.width) / 2 + 'px'
+        targetElement.style.top = e2.pageY - parseInt(targetElement.style.height) / 2 + 'px'
+    }
+    document.onmouseup = function (e3) {
+        document.onkeyup = null
+        document.onmousemove = null
+        const field_for_answer = document.querySelector('.field_for_answer')
+        const targetX = targetElement.getBoundingClientRect().left
+        const targetY = targetElement.getBoundingClientRect().top
+        const pageX = field_for_answer.getBoundingClientRect().left;
+        const pageY = field_for_answer.getBoundingClientRect().top;
+        if (Math.abs(targetX - pageX) < 15 && Math.abs(targetY - pageY) < 15) {
+            if (targetElement.index === indexWinSquare) {
+                winAnimation()
+            } else {
+                lose()
+            }
+        }
+    }
+}
+

@@ -32,6 +32,12 @@ main {
 
 }
 
+.field_for_answer {
+    border: 4px solid black;
+    height: 110px;
+    width: 110px
+}
+
 .progress_bar {
     display: flex;
     height: 15px;
@@ -56,11 +62,15 @@ main {
 }
 
 .main_square {
-    flex: 0 0 75px;
+    /*flex: 0 0 75px;*/
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     cursor: pointer;
     margin: 15px;
+    height: 75px;
+    width: 75px;
+    /*z-index: 10;*/
+    position: absolute;
 }
 
 .mini_square {
@@ -70,10 +80,14 @@ main {
 }
 
 .bottom_row {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    max-width: 80%;
+    /*display: flex;*/
+    /*flex-direction: row;*/
+    /*justify-content: center;*/
+    /*flex-wrap: wrap;*/
+    /*align-content: flex-start;*/
+    width: 80%;
+    border: 1px solid black;
+    height: 80vh;
 }
 
 @keyframes rotate-animation {
