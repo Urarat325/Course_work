@@ -10,13 +10,69 @@ body {
 
 main {
     flex: 1 0 auto;
+    display: flex;
 }
 
 .main_container {
+    flex: 80%;
     display: flex;
     flex-direction: column;
     height: 100%;
     align-items: center;
+}
+
+.profile {
+    flex: 20%;
+    display: flex;
+    flex-direction: column;
+    margin-top: 5%;
+    margin-right: 5%;
+}
+
+.console {
+    padding-bottom: 20px;
+    display: flex;
+}
+
+.input_text {
+    flex: 70%;
+}
+
+.submit_button {
+    flex: 30%;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 8px 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.list_of_name {
+    border: 1px solid black;
+    /*height: 100%;*/
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-content: center;
+}
+
+.player_name {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-family: sans-serif;
+    margin: 15px;
+}
+
+
+.score {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-family: sans-serif;
+    margin: 15px;
 }
 
 .top_row {
@@ -62,7 +118,6 @@ main {
 }
 
 .main_square {
-    /*flex: 0 0 75px;*/
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     cursor: pointer;
@@ -80,11 +135,6 @@ main {
 }
 
 .bottom_row {
-    /*display: flex;*/
-    /*flex-direction: row;*/
-    /*justify-content: center;*/
-    /*flex-wrap: wrap;*/
-    /*align-content: flex-start;*/
     width: 80%;
     border: 1px solid black;
     height: 80vh;

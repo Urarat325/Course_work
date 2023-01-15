@@ -2,9 +2,7 @@ let winSquare = []
 let arrOfSquare = []
 let arrOfCoordinates = []
 let indexWinSquare = 0
-const colors = [
-    'green', 'blue', 'red', 'yellow', 'orange', 'BlueViolet', 'Cyan', 'DarkBlue'
-]
+const colors = ['green', 'blue', 'red', 'yellow', 'orange', 'BlueViolet', 'Cyan', 'DarkBlue']
 
 let oneSide = 3
 let score = 0
@@ -15,6 +13,7 @@ let attemptsLeft = 0
 const attemptsToWin = 2
 let attemptsLeftToWin = 1
 let maxSquares = Math.pow(oneSide, 2)
+let currentName = null
 
 function init() {
     winSquare = []
@@ -58,10 +57,12 @@ function init() {
         miniSquare.style.height = width + 'px'
         main_square.appendChild(miniSquare)
     }
+
+    getInfoFromLocaleStorage()
+
     drawNumbers()
     drawProgressBar()
     drawAllSquare()
-    // mouse()
 }
 
 function getRandomElement(arr) {
@@ -133,19 +134,6 @@ function drawAllSquare() {
     }
 }
 
-function mouse() {
-    const bottom_row = document.querySelector('.bottom_row')
-    bottom_row.onmouseup = (e) => {
-        if (e.target.className === 'mini_square') {
-            if (e.target.parentElement.index === indexWinSquare) {
-                winAnimation()
-            } else {
-                // lose()
-            }
-        }
-    }
-}
-
 function winAnimation() {
     const bottom_row = document.querySelector('.bottom_row')
     bottom_row.onmouseup = null;
@@ -156,12 +144,13 @@ function winAnimation() {
             increase()
         }
         attemptsLeftToWin++;
+        drawNameAndScore(currentName, score)
         init()
     });
+
     for (let i = 0; i < arrayOfSquare.length; i++) {
         arrayOfSquare[i].style.animation = 'rotate-animation 1s linear forwards'
     }
-
 }
 
 function lose() {
@@ -185,6 +174,75 @@ function increase() {
 
 function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+function getInfoFromLocaleStorage() {
+    let listOfPlayers = JSON.parse(localStorage.getItem('listOfPlayers'))
+    let nameFromLS = JSON.parse(localStorage.getItem('playerName'))
+
+    const list_of_name = document.querySelector('.list_of_name')
+    const nameSpan = document.querySelectorAll('.player_name')
+    const scoreSpan = document.querySelectorAll('.score')
+
+    if (nameFromLS) {
+        const textFromInput = document.querySelector('.input_text')
+        textFromInput.value = nameFromLS
+        currentName = nameFromLS
+    }
+
+    for (let i = 1; i < nameSpan.length; i++) {
+        nameSpan[i].remove()
+    }
+    for (let i = 1; i < scoreSpan.length; i++) {
+        scoreSpan[i].remove()
+    }
+
+    if (listOfPlayers === null) {
+        return;
+    }
+    for (const player of listOfPlayers) {
+        const name = document.createElement('span')
+        name.className = 'player_name'
+        const score = document.createElement('span')
+        score.className = 'score'
+        name.innerText = player.name;
+        score.innerText = player.score;
+
+        list_of_name.appendChild(name)
+        list_of_name.appendChild(score)
+    }
+}
+
+function saveName() {
+    const textFromInput = document.querySelector('.input_text').value.trim()
+    if (textFromInput === '') {
+        alert('безымянных мы не любим')
+        return;
+    }
+    currentName = textFromInput
+    drawNameAndScore(textFromInput, score)
+}
+
+function drawNameAndScore(name, score) {
+    let listOfPlayers = JSON.parse(localStorage.getItem('listOfPlayers'))
+
+    if (!name) {
+        alert('безымянных мы не любим')
+        return;
+    }
+
+    if (listOfPlayers === null) {
+        listOfPlayers = []
+    }
+    let player = listOfPlayers.find(value => value.name === name)
+    if (player) {
+        player.score = score > player.score ? score : player.score
+    } else {
+        listOfPlayers.push({name, score})
+    }
+    localStorage.setItem('listOfPlayers', JSON.stringify(listOfPlayers))
+    localStorage.setItem('playerName', JSON.stringify(name))
+    getInfoFromLocaleStorage();
 }
 
 init()
@@ -216,7 +274,7 @@ document.onmousedown = function (e) {
         const targetY = targetElement.getBoundingClientRect().top
         const pageX = field_for_answer.getBoundingClientRect().left;
         const pageY = field_for_answer.getBoundingClientRect().top;
-        if (Math.abs(targetX - pageX) < 15 && Math.abs(targetY - pageY) < 15) {
+        if (Math.abs(targetX - pageX) < 25 && Math.abs(targetY - pageY) < 25) {
             if (targetElement.index === indexWinSquare) {
                 winAnimation()
             } else {
@@ -225,4 +283,10 @@ document.onmousedown = function (e) {
         }
     }
 }
+const textFromInput = document.querySelector('.input_text')
+textFromInput.addEventListener('keyup', ev => {
+    if (ev.key === "Enter") {
+        saveName();
+    }
+})
 
