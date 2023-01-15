@@ -142,8 +142,10 @@ function winAnimation() {
         score++;
         if (attemptsLeftToWin === attemptsToWin) {
             increase()
+            attemptsLeftToWin = 1
+        } else {
+            attemptsLeftToWin++;
         }
-        attemptsLeftToWin++;
         drawNameAndScore(currentName, score)
         init()
     });
